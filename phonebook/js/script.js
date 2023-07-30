@@ -103,6 +103,7 @@ const testData = [
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Телефон</th>
+        <th></th>
       </tr>
     `);
 
@@ -188,6 +189,9 @@ const testData = [
 
     return {
       list: table.tbody,
+      logo,
+      btnAdd: ButtonGroup.btns[0],
+      form,
     };
   };
 
@@ -212,7 +216,14 @@ const testData = [
     phoneLink.textContent = phone;
     tdPhone.append(phoneLink);
 
-    tr.append(tdDel, tdName, tdSurname, tdPhone);
+    const tdEdit = document.createElement('td');
+    const buttonEdit = document.createElement('button');
+    buttonEdit.classList.add('btn', 'btn-success');
+    buttonEdit.textContent = 'Изменить';
+    tdEdit.append(buttonEdit);
+
+    tr.phoneLink = phoneLink;
+    tr.append(tdDel, tdName, tdSurname, tdPhone, tdEdit);
 
     return tr;
   };
@@ -220,13 +231,48 @@ const testData = [
   const renderContacts = (list, data) => {
     const rows = data.map(createRow);
     list.append(...rows);
+    return rows;
   };
 
+  const hoverRow = (rows, logo) => {
+    rows.forEach(row => {
+        const logoText = logo.textContent;
+        row.addEventListener('mouseenter',() => {
+            logo.textContent = row.phoneLink.textContent;
+        });
+        row.addEventListener('mouseleave',() => {
+            logo.textContent = logoText;
+        });
+    });
+  };
+
+  const formEvents = ({overlay, form}) => {
+    form.addEventListener('click', (event) => {
+      event.stopPropagation();
+      });
+  
+    overlay.addEventListener('click', () => {
+      overlay.classList.remove('is-visible');
+    });
+
+    form.querySelector('.close').addEventListener('click', () => {
+      overlay.classList.remove('is-visible');
+    })
+  };
+  
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
-    const {list} = phoneBook;
-    renderContacts(list, testData);
+    const {list, logo, btnAdd, form } = phoneBook;
+    // const {formOverlay, formForm} = form;
+    console.log(form);
+    const rows = renderContacts(list, testData);
+    hoverRow(rows, logo);
+    formEvents(form);
+    
+    btnAdd.addEventListener('click', () => {
+        form.overlay.classList.add('is-visible');
+    });    
   };
   
   window.phoneBookInit = init;  
