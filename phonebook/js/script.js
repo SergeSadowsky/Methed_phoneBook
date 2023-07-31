@@ -100,8 +100,8 @@ const testData = [
     thead.insertAdjacentHTML('beforeend', `
       <tr>
         <th class="delete">Удалить</th>
-        <th>Имя</th>
-        <th>Фамилия</th>
+        <th class="head__name">Имя</th>
+        <th class="head__surname">Фамилия</th>
         <th>Телефон</th>
         <th></th>
       </tr>
@@ -109,6 +109,7 @@ const testData = [
 
     const tbody = document.createElement('tbody');
     table.append(thead, tbody);
+    table.thead = thead;
     table.tbody = tbody;
     return table;
   };
@@ -188,15 +189,18 @@ const testData = [
     app.append(header, main, footer);
 
     return {
+      theader: table.thead,
       list: table.tbody,
       logo,
       btnAdd: ButtonGroup.btns[0],
+      btnDel: ButtonGroup.btns[1],
       form,
     };
   };
 
   const createRow = ({name, surname, phone}) => {
     const tr = document.createElement('tr');
+    tr.classList.add('contact');
 
     const tdDel = document.createElement('td');
     tdDel.classList.add('delete');
@@ -205,9 +209,11 @@ const testData = [
     tdDel.append(buttonDel);
 
     const tdName = document.createElement('td');
+    tdName.classList.add('cell__name');
     tdName.textContent = name;
 
     const tdSurname = document.createElement('td');
+    tdSurname.classList.add('cell__surname');
     tdSurname.textContent = surname;
 
     const tdPhone = document.createElement('td');
@@ -247,32 +253,56 @@ const testData = [
   };
 
   const formEvents = ({overlay, form}) => {
-    form.addEventListener('click', (event) => {
-      event.stopPropagation();
-      });
-  
-    overlay.addEventListener('click', () => {
-      overlay.classList.remove('is-visible');
+    overlay.addEventListener('click', (e) => {
+      const target = e.target;
+      if(target === overlay || target.closest('close')){
+        overlay.classList.remove('is-visible');
+      }
     });
+  };
 
-    form.querySelector('.close').addEventListener('click', () => {
-      overlay.classList.remove('is-visible');
-    })
+  const sortTable = (table, cellSelector) => {
+    const trs = [...table.children];
+    trs.sort((el1, el2) => 
+        el1.querySelector(cellSelector).textContent > 
+        el2.querySelector(cellSelector).textContent);
+    forEach( tr => table.append(tr)); 
   };
   
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
-    const {list, logo, btnAdd, form } = phoneBook;
+    const {theader, list, logo, btnAdd, btnDel, form } = phoneBook;
     // const {formOverlay, formForm} = form;
-    console.log(form);
+    // console.log(form);
     const rows = renderContacts(list, testData);
     hoverRow(rows, logo);
     formEvents(form);
     
     btnAdd.addEventListener('click', () => {
         form.overlay.classList.add('is-visible');
-    });    
+    });
+    
+    btnDel.addEventListener('click', () => {
+        document.querySelectorAll('.delete').forEach( (del) => {
+            del.classList.toggle('is-visible');
+        });
+    });
+
+    list.addEventListener('click', e => {
+      if(e.target.closest('.del-icon')) {
+        e.target.closest('.contact').remove();
+      };
+    });
+
+    theader.addEventListener('click', e => {
+      if(e.target.classList.contains('head__name')){
+        sortTable(list, '.cell__name')
+      };
+      if(e.target.classList.contains('head__surname')){
+        sortTable(list, '.cell__surname')
+      }
+    });
   };
   
   window.phoneBookInit = init;  
