@@ -209,11 +209,11 @@ const testData = [
     tdDel.append(buttonDel);
 
     const tdName = document.createElement('td');
-    tdName.classList.add('cell__name');
+    // tdName.classList.add('cell__name');
     tdName.textContent = name;
 
     const tdSurname = document.createElement('td');
-    tdSurname.classList.add('cell__surname');
+    // tdSurname.classList.add('cell__surname');
     tdSurname.textContent = surname;
 
     const tdPhone = document.createElement('td');
@@ -260,13 +260,36 @@ const testData = [
       }
     });
   };
+  
+  const sortRows = (rows, colNumber, asc = true) => {
+    const trs = [...rows.children];
+    if(asc){
+      trs.sort((el1, el2) => 
+        el1.children[colNumber].textContent < 
+        el2.children[colNumber].textContent); 
+    } else
+    {
+      trs.sort((el1, el2) => 
+        el1.children[colNumber].textContent >    
+        el2.children[colNumber].textContent);
+    };
+    return trs;
+  };  
 
-  const sortTable = (table, cellSelector) => {
-    const trs = [...table.children];
-    trs.sort((el1, el2) => 
-        el1.querySelector(cellSelector).textContent > 
-        el2.querySelector(cellSelector).textContent);
-    forEach( tr => table.append(tr)); 
+  const sortTable = (table, rowSelector) => {
+    const td = table.theader.querySelector(rowSelector);
+    const colNumber = td.cellIndex;
+    let trs;
+    if(td.classList.contains('sort__desc')){
+      td.classList.remove('sort__desc');
+      td.classList.add('sort__asc');
+      trs = sortRows(table.list, colNumber);
+    } else {
+      td.classList.remove('sort__asc');
+      td.classList.add('sort__desc');
+      trs = sortRows(table.list, colNumber, false);
+    };
+    trs.forEach( tr => table.list.append(tr)); 
   };
   
   const init = (selectorApp, title) => {
@@ -297,10 +320,10 @@ const testData = [
 
     theader.addEventListener('click', e => {
       if(e.target.classList.contains('head__name')){
-        sortTable(list, '.cell__name')
+        sortTable({theader, list}, '.head__name')
       };
       if(e.target.classList.contains('head__surname')){
-        sortTable(list, '.cell__surname')
+        sortTable({theader, list}, '.head__surname')
       }
     });
   };
