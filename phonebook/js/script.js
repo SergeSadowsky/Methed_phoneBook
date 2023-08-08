@@ -330,35 +330,69 @@
     return trs;
   };  
 
+  const saveSortOptions = (options) => {
+    localStorage.setItem('sortOptions', JSON.stringify(options));
+  };
+
+  const loadSortOptions = () => {
+    return JSON.parse(localStorage.getItem('sortOptions'));
+  };
+
   const sortTable = (table, rowSelector) => {
-    const td = table.theader.querySelector(rowSelector);
-    const colNumber = td.cellIndex;
     let trs;
-    if(td.classList.contains('sort__desc')){
-      td.classList.remove('sort__desc');
-      td.classList.add('sort__asc');
-      trs = sortRows(table.list, colNumber);
+    let sortType;
+
+    if(!rowSelector) {
+      const sortOpts = loadSortOptions();
+      if(!sortOpts) return;
+      rowSelector = sortOpts.rowSelector;
+      sortType = sortOpts.sortType;
+
+      const td = table.theader.querySelector(rowSelector);
+      td.classList.add(sortType);
+      const colNumber = td.cellIndex;
+
+      if(sortType === 'sort__asc'){
+        trs = sortRows(table.list, colNumber);
+      } else {
+        trs = sortRows(table.list, colNumber,false);
+      };
+
     } else {
-      td.classList.remove('sort__asc');
-      td.classList.add('sort__desc');
-      trs = sortRows(table.list, colNumber, false);
-    };
-    trs.forEach( tr => table.list.append(tr)); 
+      const td = table.theader.querySelector(rowSelector);
+      const colNumber = td.cellIndex;
+      let sortType;
+
+      if(td.classList.contains('sort__desc')){
+        td.classList.remove('sort__desc');
+        sortType = 'sort__asc';
+        td.classList.add('sort__asc');
+        trs = sortRows(table.list, colNumber);
+      } else {
+        td.classList.remove('sort__asc');
+        sortType = 'sort__desc';
+        td.classList.add(sortType);
+        trs = sortRows(table.list, colNumber, false);
+      };
+      saveSortOptions({rowSelector, sortType});
+    };    
+    trs.forEach(tr => table.list.append(tr)); 
   };
 
   const addContactPage = (contact, list) => {
     list.append(createRow(contact));
   };
   
-  const formControl = (form, list, closeModal) => {
+  const formControl = (form, table, closeModal) => {
     form.addEventListener('submit', e => {
       e.preventDefault();
       const formData = new FormData(e.target);
 
       const newContact = Object.fromEntries(formData);
-      addContactPage(newContact, list);
+      addContactPage(newContact, table.list);
       addContactData(newContact);      
 
+      sortTable(table);
       form.reset();
       closeModal();
     });
@@ -374,11 +408,13 @@
         form } = renderPhoneBook(app, title);
 
     const rows = renderContacts(list, getStorage(STORAGE_KEY));
+    sortTable({theader, list});
+
     const {closeModal} = modalControl(btnAdd, form);
 
     hoverRow(rows, logo);
 
-    formControl(form.form, list, closeModal); 
+    formControl(form.form, {theader, list}, closeModal); 
     deleteControl(btnDel,list); 
 
     theader.addEventListener('click', e => {
