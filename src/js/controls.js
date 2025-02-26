@@ -1,6 +1,6 @@
-import serviceData from './serviceData.js';
-import {sortTable} from './sorting.js';
-import {addContactPage, removeContactPage} from './render.js';
+import serviceData from './serviceData';
+import {sortTable} from './sorting';
+import {addContactPage, removeContactPage} from './render';
 
 const hoverRow = (rows, logo) => {
   rows.forEach(row => {

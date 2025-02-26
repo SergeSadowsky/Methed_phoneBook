@@ -1,6 +1,8 @@
-import htmlElements from './htmlElements.js';
+import htmlElements from './htmlElements';
 
-const {createHeader,
+const {
+  createImageLogo,
+  createHeader,
   createLogo,
   createMain,
   createFooter,
@@ -20,6 +22,7 @@ export const removeContactPage = (el) => {
 
 export const renderPhoneBook = (app, title) => {
   const header = createHeader();
+  const imageLogo = createImageLogo();
   const logo = createLogo(title);
   const main = createMain();
   const footer = createFooter(title);
@@ -38,7 +41,7 @@ export const renderPhoneBook = (app, title) => {
   const table = createTable();
   const form = createForm();
 
-  header.headerContainer.append(logo);
+  header.headerContainer.append(imageLogo, logo);
   main.mainContainer.append(ButtonGroup.btnWrapper, table, form.overlay);
 
   app.append(header, main, footer);

@@ -1,8 +1,8 @@
+const loadSortOptions = () => JSON.parse(localStorage.getItem('sortOptions'));
+
 const saveSortOptions = (options) => {
   localStorage.setItem('sortOptions', JSON.stringify(options));
 };
-
-const loadSortOptions = () => JSON.parse(localStorage.getItem('sortOptions'));
 
 const sortRows = (rows, colNumber, asc = true) => {
   const trs = [...rows.children];

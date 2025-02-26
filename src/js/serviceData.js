@@ -1,4 +1,4 @@
-import * as storage from './serviceStorage.js';
+import * as storage from './serviceStorage';
 
 const STORAGE_KEY = 'phoneBook';
 
